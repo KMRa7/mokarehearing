@@ -1,0 +1,1330 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>mokareヒアリングシート作成フォーム</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.2em;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .main-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 40px;
+            background: #f8f9fa;
+        }
+
+        .left-column,
+        .right-column {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .section-title {
+            font-size: 1.3em;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #4CAF50;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 8px;
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="email"],
+        .form-group input[type="time"],
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #4CAF50;
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 20px;
+            margin-top: 8px;
+        }
+
+        .radio-group label {
+            display: flex;
+            align-items: center;
+            font-weight: normal;
+            margin-bottom: 0;
+        }
+
+        .radio-group input[type="radio"] {
+            margin-right: 5px;
+            width: auto;
+        }
+
+        .business-hours {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .day-group {
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+        }
+
+        .day-group label {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 10px;
+        }
+
+        .time-inputs {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-top: 8px;
+        }
+
+        .time-inputs input[type="time"] {
+            flex: 1;
+            margin-bottom: 0;
+        }
+
+        .closed-checkbox {
+            margin-top: 8px;
+        }
+
+        .closed-checkbox input[type="checkbox"] {
+            margin-right: 5px;
+        }
+
+        .menu-section {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+
+        .menu-section:hover {
+            border-color: #4CAF50;
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.1);
+        }
+
+        .menu-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        .menu-number {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+
+        .menu-input {
+            flex: 1;
+        }
+
+        .menu-input input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .remove-menu-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .remove-menu-btn:hover {
+            background: #c82333;
+            transform: translateY(-1px);
+        }
+
+        .items-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .item-section {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            border: 1px solid #dee2e6;
+        }
+
+        .item-section h4 {
+            color: #495057;
+            margin-bottom: 15px;
+            font-size: 1em;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            padding: 8px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            border: 1px solid #e9ecef;
+        }
+
+        .item-number {
+            background: #6c757d;
+            color: white;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .item-input {
+            flex: 1;
+        }
+
+        .item-input input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .remove-item-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            flex-shrink: 0;
+        }
+
+        .add-btn,
+        .add-option-btn,
+        .add-suboption-btn {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .add-btn:hover,
+        .add-option-btn:hover,
+        .add-suboption-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+        }
+
+        .share-section {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 30px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+
+        .share-title {
+            font-size: 1.3em;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+
+        .share-btn {
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+        }
+
+        .share-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 123, 255, 0.4);
+        }
+
+        .copy-message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #4CAF50;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            z-index: 10000;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            animation: slideInRight 0.3s ease;
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .main-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .items-container {
+                grid-template-columns: 1fr;
+            }
+
+            .business-hours {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+            }
+
+            .main-layout {
+                padding: 20px;
+                gap: 20px;
+            }
+
+            .header {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 1.8em;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📋 mokareヒアリングシート作成フォーム</h1>
+        </div>
+
+        <div class="main-layout">
+            <!-- 左列：基本設定 -->
+            <div class="left-column">
+                <div class="section-title">
+                    ⚙️ 基本設定
+                </div>
+
+                <form id="hearingForm">
+                    <div class="form-group">
+                        <label for="projectName">店舗名を入力してください</label>
+                        <input type="text" id="projectName" name="projectName">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="accountName">サロンボードのアカウント名を入力してください</label>
+                        <input type="text" id="accountName" name="accountName">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">サロンボードのパスワードを入力してください</label>
+                        <input type="text" id="password" name="password">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="shareUrl">HPBの店舗のTOPページのURLを入力してください</label>
+                        <input type="text" id="shareUrl" name="shareUrl">
+                    </div>
+
+                    <div class="form-group">
+                        <label>メニューボタンを設定しますか?</label>
+                        <div class="radio-group">
+                            <label>
+                                <input type="radio" name="menuButton" value="yes">
+                                はい
+                            </label>
+                            <label>
+                                <input type="radio" name="menuButton" value="no">
+                                いいえ
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="nomenu">不必要なメニュー名を入力してください</label>
+                        <textarea type="text" id="nomenu" name="nomenu"> </textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>クーポンボタンを設定しますか?</label>
+                        <div class="radio-group">
+                            <label>
+                                <input type="radio" name="couponButton" value="yes">
+                                はい
+                            </label>
+                            <label>
+                                <input type="radio" name="couponButton" value="no">
+                                いいえ
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="nocoupon">不必要なクーポン名を入力してください</label>
+                        <textarea type="text" id="nocoupon" name="nocoupon"></textarea>
+                    </div>
+
+                    <div class="section-title">
+                        ⚙️ 通知テキスト設定
+                    </div>
+
+                    <div class="form-group">
+                        <label for="notificationEmails">通知先のメールアドレスをご記入ください（複数可）</label>
+                        <textarea id="notificationEmails" name="notificationEmails"
+                            placeholder="通知先のメールアドレスをご記入ください..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="newReservationAdmin">メール通知 - 新規予約時</label>
+                        <textarea id="newReservationAdmin" name="newReservationAdmin"
+                            placeholder="管理者向け新規予約通知テンプレート...">新しい予約が入りました
+
+LINE名: {LINE名}
+予約日時: {予約日時}
+メニュー: {メニュー}</textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="cancelReservationAdmin">メール通知 - キャンセル時</label>
+                        <textarea id="cancelReservationAdmin" name="cancelReservationAdmin"
+                            placeholder="管理者向けキャンセル通知テンプレート...">予約がキャンセルされました
+
+LINE名: {LINE名}
+予約日時: {予約日時}
+メニュー: {メニュー}</textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="newReservationUser">ユーザー向け通知 - 新規予約時</label>
+                        <textarea id="newReservationUser" name="newReservationUser" placeholder="ユーザー向け新規予約通知テンプレート...">{LINE名}様
+
+予約を受け付けました。
+予約日時: {予約日時}
+メニュー: {メニュー}</textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="cancelReservationUser">ユーザー向け通知 - キャンセル時</label>
+                        <textarea id="cancelReservationUser" name="cancelReservationUser"
+                            placeholder="ユーザー向けキャンセル通知テンプレート...">{LINE名}様
+
+予約をキャンセルしました。
+予約日時: {予約日時}
+メニュー: {メニュー}</textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="reminderTime">リマインド設定 - お送りする時間</label>
+                        <textarea id="reminderTime" name="reminderTime" placeholder="〇日前　〇時間前　〇分前"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="reminderMessage">リマインドメッセージ</label>
+                        <textarea id="reminderMessage" name="reminderMessage" placeholder="リマインドメッセージテンプレート...">{LINE名}様
+
+まもなく予約時間です。
+予約日時: {予約日時}
+メニュー: {メニュー}</textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="overview">備考・その他の設定</label>
+                        <textarea id="overview" name="overview" placeholder="その他の設定や備考を記入してください..."></textarea>
+                    </div>
+                </form>
+            </div>
+
+            <!-- 右列：カテゴリー設定 -->
+            <div class="right-column">
+                <div class="section-title">
+                    📝 カテゴリー設定
+                </div>
+
+                <div class="form-group">
+                    <label>カテゴリーボタンを設定しますか?</label>
+                    <div class="radio-group">
+                        <label>
+                            <input type="radio" name="categoryButton" value="yes">
+                            はい
+                        </label>
+                        <label>
+                            <input type="radio" name="categoryButton" value="no">
+                            いいえ
+                        </label>
+                    </div>
+                </div>
+
+                <div id="menusContainer"></div>
+
+                <button type="button" class="add-btn" onclick="addMenu()">
+                    ➕ カテゴリーを追加
+                </button>
+            </div>
+
+            <!-- 出力セクション -->
+            <div class="share-section">
+                <div class="share-title">
+                    📄 ヒアリングシートを出力
+                </div>
+                <button class="share-btn" onclick="exportAsHTML()">
+                    📄 HTMLで出力
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let menuCount = 0;
+        let optionCounters = {};
+        let suboptionCounters = {};
+
+        function addMenu() {
+            menuCount++;
+            optionCounters[menuCount] = 0;
+            suboptionCounters[menuCount] = 0;
+            const container = document.getElementById('menusContainer');
+
+            const menuDiv = document.createElement('div');
+            menuDiv.className = 'menu-section';
+            menuDiv.id = `menu-${menuCount}`;
+
+            menuDiv.innerHTML = `
+        <div class="menu-header">
+            <div class="menu-number">${menuCount}</div>
+            <div class="menu-input">
+                <input type="text" name="menu-${menuCount}" placeholder="カテゴリー名を入力...">
+            </div>
+            <button type="button" class="remove-menu-btn" onclick="removeMenu(${menuCount})">削除</button>
+        </div>
+        
+        <div class="items-container">
+            <div class="item-section options-section">
+                <h4>メニューからの追加項目</h4>
+                <div id="options-${menuCount}" class="options-container"></div>
+                <div class="button-group">
+                    <button type="button" class="add-option-btn" onclick="addOption(${menuCount})">
+                        ➕ メニューからの追加
+                    </button>
+                </div>
+            </div>
+            
+            <div class="item-section suboptions-section">
+                <h4>クーポンからの追加項目</h4>
+                <div id="suboptions-${menuCount}" class="suboptions-container"></div>
+                <div class="button-group">
+                    <button type="button" class="add-suboption-btn" onclick="addSuboption(${menuCount})">
+                        ➕ クーポンからの追加
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+
+            container.appendChild(menuDiv);
+        }
+
+        function removeMenu(menuId) {
+            const menuElement = document.getElementById(`menu-${menuId}`);
+            if (menuElement) {
+                menuElement.remove();
+                delete optionCounters[menuId];
+                delete suboptionCounters[menuId];
+            }
+        }
+
+        function addOption(menuId) {
+            if (!optionCounters[menuId]) optionCounters[menuId] = 0;
+            optionCounters[menuId]++;
+            const optionId = optionCounters[menuId];
+
+            const container = document.getElementById(`options-${menuId}`);
+
+            const optionDiv = document.createElement('div');
+            optionDiv.className = 'item option-item';
+            optionDiv.id = `option-${menuId}-${optionId}`;
+
+            optionDiv.innerHTML = `
+        <div class="item-number">${optionId}</div>
+        <div class="item-input">
+            <input type="text" name="option-${menuId}-${optionId}" placeholder="メニューからの追加を入力...">
+        </div>
+        <button type="button" class="remove-item-btn" onclick="removeOption(${menuId}, ${optionId})">削除</button>
+    `;
+
+            container.appendChild(optionDiv);
+        }
+
+        function removeOption(menuId, optionId) {
+            const optionElement = document.getElementById(`option-${menuId}-${optionId}`);
+            if (optionElement) {
+                optionElement.remove();
+                updateItemNumbers(menuId, 'options');
+            }
+        }
+
+        function addSuboption(menuId) {
+            if (!suboptionCounters[menuId]) suboptionCounters[menuId] = 0;
+            suboptionCounters[menuId]++;
+            const suboptionId = suboptionCounters[menuId];
+
+            const container = document.getElementById(`suboptions-${menuId}`);
+
+            const suboptionDiv = document.createElement('div');
+            suboptionDiv.className = 'item suboption-item';
+            suboptionDiv.id = `suboption-${menuId}-${suboptionId}`;
+
+            suboptionDiv.innerHTML = `
+        <div class="item-number">${suboptionId}</div>
+        <div class="item-input">
+            <input type="text" name="suboption-${menuId}-${suboptionId}" placeholder="クーポンからの追加を入力...">
+        </div>
+        <button type="button" class="remove-item-btn" onclick="removeSuboption(${menuId}, ${suboptionId})">削除</button>
+    `;
+
+            container.appendChild(suboptionDiv);
+        }
+
+        function removeSuboption(menuId, suboptionId) {
+            const suboptionElement = document.getElementById(`suboption-${menuId}-${suboptionId}`);
+            if (suboptionElement) {
+                suboptionElement.remove();
+                updateItemNumbers(menuId, 'suboptions');
+            }
+        }
+
+        function updateItemNumbers(menuId, type) {
+            const container = document.getElementById(`${type}-${menuId}`);
+            const items = container.querySelectorAll('.item');
+            items.forEach((item, index) => {
+                const numberElement = item.querySelector('.item-number');
+                numberElement.textContent = index + 1;
+            });
+        }
+
+        function getRadioValue(name) {
+            const radio = document.querySelector(`input[name="${name}"]:checked`);
+            return radio ? radio.value : '';
+        }
+
+        function collectFormData() {
+            const data = {
+                basicInfo: {
+                    projectName: document.getElementById('projectName').value,
+                    accountName: document.getElementById('accountName').value,
+                    password: document.getElementById('password').value,
+                    shareUrl: document.getElementById('shareUrl').value,
+                    menuButton: getRadioValue('menuButton'),
+                    nomenu: document.getElementById('nomenu').value,
+                    couponButton: getRadioValue('couponButton'),
+                    nocoupon: document.getElementById('nocoupon').value,
+                    // 通知テキスト設定
+                    notificationEmails: document.getElementById('notificationEmails').value,
+                    newReservationAdmin: document.getElementById('newReservationAdmin').value,
+                    cancelReservationAdmin: document.getElementById('cancelReservationAdmin').value,
+                    newReservationUser: document.getElementById('newReservationUser').value,
+                    cancelReservationUser: document.getElementById('cancelReservationUser').value,
+                    reminderTime: document.getElementById('reminderTime').value,
+                    reminderMessage: document.getElementById('reminderMessage').value,
+                    overview: document.getElementById('overview').value
+                },
+                categoryButton: getRadioValue('categoryButton'),
+                menus: []
+            };
+
+            // メニュー情報の収集
+            for (let menuId = 1; menuId <= menuCount; menuId++) {
+                const menuElement = document.getElementById(`menu-${menuId}`);
+                if (!menuElement) continue;
+
+                const menuInput = menuElement.querySelector(`input[name="menu-${menuId}"]`);
+                const menuName = menuInput ? menuInput.value : '';
+
+                if (!menuName) continue;
+
+                const menuData = {
+                    id: menuId,
+                    name: menuName,
+                    options: [],
+                    suboptions: []
+                };
+
+                // メニューからの追加項目収集
+                const optionsContainer = document.getElementById(`options-${menuId}`);
+                const optionInputs = optionsContainer ? optionsContainer.querySelectorAll('input[type="text"]') : [];
+
+                optionInputs.forEach(input => {
+                    if (input.value.trim()) {
+                        menuData.options.push(input.value.trim());
+                    }
+                });
+
+                // クーポンからの追加項目収集
+                const suboptionsContainer = document.getElementById(`suboptions-${menuId}`);
+                const suboptionInputs = suboptionsContainer ? suboptionsContainer.querySelectorAll('input[type="text"]') : [];
+
+                suboptionInputs.forEach(input => {
+                    if (input.value.trim()) {
+                        menuData.suboptions.push(input.value.trim());
+                    }
+                });
+
+                data.menus.push(menuData);
+            }
+
+            return data;
+        }
+
+        function exportAsHTML() {
+            const data = collectFormData();
+
+            // HTMLテンプレートを生成
+            const htmlContent = generateHTMLContent(data);
+
+            // ファイル名を生成（プロジェクト名があればそれを使用）
+            const fileName = data.basicInfo.projectName
+                ? `${data.basicInfo.projectName}_ヒアリングシート.html`
+                : 'ヒアリングシート.html';
+
+            // ダウンロード実行
+            downloadHTML(htmlContent, fileName);
+        }
+
+        function generateHTMLContent(data) {
+            const basic = data.basicInfo;
+
+            let basicInfoHTML = `
+    <div style="margin-bottom: 30px;">
+        <h3 style="color: #495057; margin-bottom: 15px;">📋 基本設定</h3>
+        <div style="background: white; padding: 20px; border-radius: 8px; border: 1px solid #e9ecef;">`;
+
+            // 基本情報項目の生成
+            if (basic.projectName) basicInfoHTML += `<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding: 8px; background: #f8f9fa; border-radius: 4px;"><span><strong>店舗名:</strong> ${basic.projectName}</span><button onclick="copyText('${basic.projectName.replace(/'/g, "\\'")}')">📋</button></div>`;
+
+            if (basic.accountName) basicInfoHTML += `<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding: 8px; background: #f8f9fa; border-radius: 4px;"><span><strong>サロンボードのアカウント名:</strong> ${basic.accountName}</span><button onclick="copyText('${basic.accountName.replace(/'/g, "\\'")}')">📋</button></div>`;
+
+            if (basic.password) basicInfoHTML += `<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding: 8px; background: #f8f9fa; border-radius: 4px;"><span><strong>サロンボードのパスワード:</strong> ${'*'.repeat(basic.password.length)}</span><button onclick="copyText('${basic.password.replace(/'/g, "\\'")}')">📋</button></div>`;
+
+            if (basic.shareUrl) basicInfoHTML += `<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding: 8px; background: #f8f9fa; border-radius: 4px;"><span><strong>HPBの店舗のTOPページのURL:</strong> ${basic.shareUrl}</span><button onclick="copyText('${basic.shareUrl.replace(/'/g, "\\'")}')">📋</button></div>`;
+
+            if (basic.menuButton) basicInfoHTML += `<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding: 8px; background: #f8f9fa; border-radius: 4px;"><span><strong>メニューボタン設定:</strong> ${basic.menuButton === 'yes' ? 'はい' : 'いいえ'}</span><button onclick="copyText('${basic.menuButton === 'yes' ? 'はい' : 'いいえ'}')">📋</button></div>`;
+
+            if (basic.nomenu) basicInfoHTML += `<div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; padding: 8px; background: #f8f9fa; border-radius: 4px;"><span><strong>不必要なメニュー名:</strong><br><pre style="white-space: pre-wrap; font-family: inherit; margin: 5px 0 0 0;">${basic.nomenu}</pre></span><button onclick="copyText('${basic.nomenu.replace(/'/g, "\\'")}')">📋</button></div>`;
+
+            if (basic.couponButton) basicInfoHTML += `<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding: 8px; background: #f8f9fa; border-radius: 4px;"><span><strong>クーポンボタン設定:</strong> ${basic.couponButton === 'yes' ? 'はい' : 'いいえ'}</span><button onclick="copyText('${basic.couponButton === 'yes' ? 'はい' : 'いいえ'}')">📋</button></div>`;
+
+            if (basic.nocoupon) basicInfoHTML += `<div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; padding: 8px; background: #f8f9fa; border-radius: 4px;"><span><strong>不必要なクーポン名:</strong><br><pre style="white-space: pre-wrap; font-family: inherit; margin: 5px 0 0 0;">${basic.nocoupon}</pre></span><button onclick="copyText('${basic.nocoupon.replace(/'/g, "\\'")}')">📋</button></div>`;
+
+            if (basic.overview) basicInfoHTML += `<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding: 8px; background: #f8f9fa; border-radius: 4px;"><span><strong>備考・その他の設定:</strong> ${basic.overview}</span><button onclick="copyText('${basic.overview.replace(/'/g, "\\'")}')">📋</button></div>`;
+
+            basicInfoHTML += `</div></div>`;
+
+            // 通知テキスト設定セクション
+            let notificationHTML = `
+    <div style="margin-bottom: 30px;">
+        <h3 style="color: #495057; margin-bottom: 15px;">📧 通知テキスト設定</h3>
+        <div style="background: white; padding: 20px; border-radius: 8px; border: 1px solid #e9ecef;">`;
+
+            if (basic.notificationEmails) notificationHTML += `<div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; padding: 8px; background: #f8f9fa; border-radius: 4px;"><span><strong>通知先メールアドレス:</strong><br>${basic.notificationEmails.replace(/\n/g, '<br>')}</span><button onclick="copyText('${basic.notificationEmails.replace(/'/g, "\\'")}')">📋</button></div>`;
+
+            if (basic.newReservationAdmin) notificationHTML += `<div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; padding: 8px; background: #f8f9fa; border-radius: 4px;"><span><strong>メール通知 - 新規予約時:</strong><br><pre style="white-space: pre-wrap; font-family: inherit; margin: 5px 0 0 0;">${basic.newReservationAdmin}</pre></span><button onclick="copyText('${basic.newReservationAdmin.replace(/'/g, "\\'")}')">📋</button></div>`;
+
+            if (basic.cancelReservationAdmin) notificationHTML += `<div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; padding: 8px; background: #f8f9fa; border-radius: 4px;"><span><strong>メール通知 - キャンセル時:</strong><br><pre style="white-space: pre-wrap; font-family: inherit; margin: 5px 0 0 0;">${basic.cancelReservationAdmin}</pre></span><button onclick="copyText('${basic.cancelReservationAdmin.replace(/'/g, "\\'")}')">📋</button></div>`;
+
+            if (basic.newReservationUser) notificationHTML += `<div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; padding: 8px; background: #f8f9fa; border-radius: 4px;"><span><strong>ユーザー向け通知 - 新規予約時:</strong><br><pre style="white-space: pre-wrap; font-family: inherit; margin: 5px 0 0 0;">${basic.newReservationUser}</pre></span><button onclick="copyText('${basic.newReservationUser.replace(/'/g, "\\'")}')">📋</button></div>`;
+
+            if (basic.cancelReservationUser) notificationHTML += `<div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; padding: 8px; background: #f8f9fa; border-radius: 4px;"><span><strong>ユーザー向け通知 - キャンセル時:</strong><br><pre style="white-space: pre-wrap; font-family: inherit; margin: 5px 0 0 0;">${basic.cancelReservationUser}</pre></span><button onclick="copyText('${basic.cancelReservationUser.replace(/'/g, "\\'")}')">📋</button></div>`;
+
+            if (basic.reminderTime) notificationHTML += `<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding: 8px; background: #f8f9fa; border-radius: 4px;"><span><strong>リマインド設定 - お送りする時間:</strong> ${basic.reminderTime}</span><button onclick="copyText('${basic.reminderTime.replace(/'/g, "\\'")}')">📋</button></div>`;
+
+            if (basic.reminderMessage) notificationHTML += `<div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; padding: 8px; background: #f8f9fa; border-radius: 4px;"><span><strong>リマインドメッセージ:</strong><br><pre style="white-space: pre-wrap; font-family: inherit; margin: 5px 0 0 0;">${basic.reminderMessage}</pre></span><button onclick="copyText('${basic.reminderMessage.replace(/'/g, "\\'")}')">📋</button></div>`;
+
+            notificationHTML += `</div></div>`;
+
+            // カテゴリー設定セクション
+            let categoryHTML = '';
+            if (data.categoryButton) {
+                categoryHTML += `
+        <div style="margin-bottom: 30px;">
+            <h3 style="color: #495057; margin-bottom: 15px;">📝 カテゴリー設定</h3>
+            <div style="background: white; padding: 20px; border-radius: 8px; border: 1px solid #e9ecef;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding: 8px; background: #f8f9fa; border-radius: 4px;">
+                    <span><strong>カテゴリーボタン設定:</strong> ${data.categoryButton === 'yes' ? 'はい' : 'いいえ'}</span>
+                    <button onclick="copyText('${data.categoryButton === 'yes' ? 'はい' : 'いいえ'}')">📋</button>
+                </div>
+            </div>
+        </div>`;
+            }
+
+            // メニュー詳細セクション
+            let menusHTML = '';
+            if (data.menus.length > 0) {
+                menusHTML = `
+        <div>
+            <h3 style="color: #495057; margin-bottom: 15px;">📝 カテゴリー詳細</h3>`;
+
+                data.menus.forEach(menu => {
+                    menusHTML += `
+        <div style="background: white; border-radius: 12px; margin-bottom: 20px; overflow: hidden; border: 1px solid #dee2e6; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+            <div style="background: linear-gradient(135deg, #4CAF50, #45a049); color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center;">
+                <div style="font-weight: 600; font-size: 1.1em;">${menu.name}</div>
+                <button onclick="copyText('${menu.name.replace(/'/g, "\\'")}')">📋</button>
+            </div>`;
+
+                    if (menu.options.length > 0) {
+                        menusHTML += `
+                <div style="padding: 20px;">
+                    <div style="font-weight: 600; color: #495057; margin-bottom: 15px; font-size: 1em;">🔹 メニューからの追加項目</div>`;
+
+                        menu.options.forEach(option => {
+                            menusHTML += `
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; margin-bottom: 8px; background: #f8f9fa; border-radius: 6px; border: 1px solid #e9ecef;">
+                        <span>${option}</span>
+                        <button onclick="copyText('${option.replace(/'/g, "\\'")}')">📋</button>
+                    </div>`;
+                        });
+
+                        menusHTML += `</div>`;
+                    }
+
+                    if (menu.suboptions.length > 0) {
+                        menusHTML += `
+                <div style="padding: 20px;">
+                    <div style="font-weight: 600; color: #495057; margin-bottom: 15px; font-size: 1em;">🔸 クーポンからの追加項目</div>`;
+
+                        menu.suboptions.forEach(suboption => {
+                            menusHTML += `
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; margin-bottom: 8px; background: #f8f9fa; border-radius: 6px; border: 1px solid #e9ecef;">
+                        <span>${suboption}</span>
+                        <button onclick="copyText('${suboption.replace(/'/g, "\\'")}')">📋</button>
+                    </div>`;
+                        });
+
+                        menusHTML += `</div>`;
+                    }
+
+                    menusHTML += `</div>`;
+                });
+
+                menusHTML += `</div>`;
+            }
+
+            const title = data.basicInfo.projectName ? `${data.basicInfo.projectName} - ヒアリングシート` : 'ヒアリングシート';
+
+            return `<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${title}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 {
+            font-size: 2.2em;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+        .content {
+            padding: 40px;
+            background: #f8f9fa;
+        }
+        @media print {
+            body { background: white; padding: 0; }
+            .container { box-shadow: none; }
+        }
+        button {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 11px;
+            transition: all 0.3s ease;
+        }
+        button:hover {
+            background: #218838;
+            transform: translateY(-1px);
+        }
+        .copy-message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #4CAF50;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            z-index: 10000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            animation: slideInRight 0.3s ease;
+        }
+        @keyframes slideInRight {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        pre {
+            font-size: 0.9em;
+            line-height: 1.4;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📋 ${title}</h1>
+            <p>予約システムヒアリングシート</p>
+        </div>
+        <div class="content">
+            ${basicInfoHTML}
+            ${notificationHTML}
+            ${categoryHTML}
+            ${menusHTML}
+        </div>
+    </div>
+    <script>
+        function copyText(text) {
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(text).then(() => {
+                    showCopyMessage('コピーしました！');
+                }).catch(err => {
+                    console.error('コピーに失敗しました:', err);
+                    fallbackCopyText(text);
+                });
+            } else {
+                fallbackCopyText(text);
+            }
+        }
+        function fallbackCopyText(text) {
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            textArea.style.position = 'fixed';
+            textArea.style.left = '-999999px';
+            textArea.style.top = '-999999px';
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+
+            try {
+                document.execCommand('copy');
+                showCopyMessage('コピーしました！');
+            } catch (err) {
+                console.error('フォールバックコピーに失敗しました:', err);
+                showCopyMessage('コピーに失敗しました');
+            }
+
+            document.body.removeChild(textArea);
+        }
+
+        function showCopyMessage(message) {
+            const existingMessage = document.querySelector('.copy-message');
+            if (existingMessage) {
+                existingMessage.remove();
+            }
+
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'copy-message';
+            messageDiv.textContent = message;
+            document.body.appendChild(messageDiv);
+
+            setTimeout(() => {
+                if (messageDiv.parentNode) {
+                    messageDiv.style.animation = 'slideInRight 0.3s ease reverse';
+                    setTimeout(() => {
+                        if (messageDiv.parentNode) {
+                            messageDiv.remove();
+                        }
+                    }, 300);
+                }
+            }, 3000);
+        }
+    <\/script>
+<\/body>
+<\/html>`;
+        }
+
+        function downloadHTML(content, filename) {
+            const blob = new Blob([content], { type: 'text/html;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.style.display = 'none';
+
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+
+            // メモリリークを防ぐためにURLを解放
+            URL.revokeObjectURL(url);
+
+            showCopyMessage('HTMLファイルをダウンロードしました！');
+        }
+
+        function showCopyMessage(message) {
+            // 既存のメッセージがあれば削除
+            const existingMessage = document.querySelector('.copy-message');
+            if (existingMessage) {
+                existingMessage.remove();
+            }
+
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'copy-message';
+            messageDiv.textContent = message;
+            messageDiv.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: #4CAF50;
+                color: white;
+                padding: 12px 20px;
+                border-radius: 6px;
+                font-size: 14px;
+                font-weight: 600;
+                z-index: 10000;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                animation: slideInRight 0.3s ease;
+            `;
+
+            // アニメーションのCSSを追加
+            if (!document.querySelector('#copyMessageStyle')) {
+                const style = document.createElement('style');
+                style.id = 'copyMessageStyle';
+                style.textContent = `
+                    @keyframes slideInRight {
+                        from {
+                            transform: translateX(100%);
+                            opacity: 0;
+                        }
+                        to {
+                            transform: translateX(0);
+                            opacity: 1;
+                        }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+
+            document.body.appendChild(messageDiv);
+
+            // 3秒後に削除
+            setTimeout(() => {
+                if (messageDiv.parentNode) {
+                    messageDiv.style.animation = 'slideInRight 0.3s ease reverse';
+                    setTimeout(() => {
+                        if (messageDiv.parentNode) {
+                            messageDiv.remove();
+                        }
+                    }, 300);
+                }
+            }, 3000);
+        }
+
+        // ページ読み込み時の初期化
+        document.addEventListener('DOMContentLoaded', function () {
+            // デフォルトでカテゴリーを1つ追加
+            addMenu();
+        });
+
+        // キーボードショートカット
+        document.addEventListener('keydown', function (e) {
+            // Ctrl+Enter でカテゴリー追加
+            if (e.ctrlKey && e.key === 'Enter') {
+                e.preventDefault();
+                addMenu();
+            }
+        });
+
+        // データ保存関数
+        function autoSaveFormData() {
+            const projectName = document.getElementById('projectName').value.trim();
+            if (!projectName) return;
+            
+            const data = collectFormData();
+            const savedData = JSON.parse(localStorage.getItem('hearingSheetData') || '{}');
+            savedData[projectName] = data;
+            localStorage.setItem('hearingSheetData', JSON.stringify(savedData));
+        }
+
+        // 自動保存の設定
+        function setupAutoSave() {
+            const form = document.getElementById('hearingForm');
+            const menusContainer = document.getElementById('menusContainer');
+            
+            // 全てのフォーム要素に自動保存を設定
+            form.addEventListener('input', debounce(autoSaveFormData, 1000));
+            form.addEventListener('change', autoSaveFormData);
+            
+            // メニューコンテナの変更も監視
+            menusContainer.addEventListener('input', debounce(autoSaveFormData, 1000));
+        }
+
+        // デバウンス関数（連続入力時の保存頻度を制御）
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+
+        // 3. データ読み込み関数を追加
+        function loadFormData(projectName) {
+            const savedData = JSON.parse(localStorage.getItem('hearingSheetData') || '{}');
+            if (!savedData[projectName]) return;
+            
+            const data = savedData[projectName];
+            
+            // 基本情報の復元
+            const basic = data.basicInfo;
+            if (basic.accountName) document.getElementById('accountName').value = basic.accountName;
+            if (basic.password) document.getElementById('password').value = basic.password;
+            if (basic.shareUrl) document.getElementById('shareUrl').value = basic.shareUrl;
+            if (basic.nomenu) document.getElementById('nomenu').value = basic.nomenu;
+            if (basic.nocoupon) document.getElementById('nocoupon').value = basic.nocoupon;
+            if (basic.notificationEmails) document.getElementById('notificationEmails').value = basic.notificationEmails;
+            if (basic.newReservationAdmin) document.getElementById('newReservationAdmin').value = basic.newReservationAdmin;
+            if (basic.cancelReservationAdmin) document.getElementById('cancelReservationAdmin').value = basic.cancelReservationAdmin;
+            if (basic.newReservationUser) document.getElementById('newReservationUser').value = basic.newReservationUser;
+            if (basic.cancelReservationUser) document.getElementById('cancelReservationUser').value = basic.cancelReservationUser;
+            if (basic.reminderTime) document.getElementById('reminderTime').value = basic.reminderTime;
+            if (basic.reminderMessage) document.getElementById('reminderMessage').value = basic.reminderMessage;
+            if (basic.overview) document.getElementById('overview').value = basic.overview;
+            
+            // ラジオボタンの復元
+            if (basic.menuButton) {
+                const menuRadio = document.querySelector(`input[name="menuButton"][value="${basic.menuButton}"]`);
+                if (menuRadio) menuRadio.checked = true;
+            }
+            if (basic.couponButton) {
+                const couponRadio = document.querySelector(`input[name="couponButton"][value="${basic.couponButton}"]`);
+                if (couponRadio) couponRadio.checked = true;
+            }
+            if (data.categoryButton) {
+                const categoryRadio = document.querySelector(`input[name="categoryButton"][value="${data.categoryButton}"]`);
+                if (categoryRadio) categoryRadio.checked = true;
+            }
+            
+            // 既存のメニューをクリア
+            document.getElementById('menusContainer').innerHTML = '';
+            menuCount = 0;
+            optionCounters = {};
+            suboptionCounters = {};
+            
+            // メニューの復元
+            data.menus.forEach(menu => {
+                addMenu();
+                const currentMenuId = menuCount;
+                
+                // メニュー名設定
+                const menuInput = document.querySelector(`input[name="menu-${currentMenuId}"]`);
+                if (menuInput) menuInput.value = menu.name;
+                
+                // オプション復元
+                menu.options.forEach(option => {
+                    addOption(currentMenuId);
+                    const optionInputs = document.querySelectorAll(`#options-${currentMenuId} input[type="text"]`);
+                    const lastOptionInput = optionInputs[optionInputs.length - 1];
+                    if (lastOptionInput) lastOptionInput.value = option;
+                });
+                
+                // サブオプション復元
+                menu.suboptions.forEach(suboption => {
+                    addSuboption(currentMenuId);
+                    const suboptionInputs = document.querySelectorAll(`#suboptions-${currentMenuId} input[type="text"]`);
+                    const lastSuboptionInput = suboptionInputs[suboptionInputs.length - 1];
+                    if (lastSuboptionInput) lastSuboptionInput.value = suboption;
+                });
+            });
+            
+            showCopyMessage(`${projectName}のデータを読み込みました`);
+        }
+
+        // 既存のDOMContentLoadedイベントリスナーを以下のように変更
+        document.addEventListener('DOMContentLoaded', function () {
+            // デフォルトでカテゴリーを1つ追加
+            addMenu();
+            
+            // 自動保存機能を初期化
+            setupAutoSave();
+            
+            // 店舗名入力フィールドのイベントリスナー（自動読み込み用）
+            document.getElementById('projectName').addEventListener('input', function() {
+                if (this.value.trim()) {
+                    const savedData = JSON.parse(localStorage.getItem('hearingSheetData') || '{}');
+                    if (savedData[this.value.trim()]) {
+                        // 既存データがある場合は自動で読み込み
+                        loadFormData(this.value.trim());
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>
