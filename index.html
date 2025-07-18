@@ -437,6 +437,20 @@
                     </div>
 
                     <div class="form-group">
+                        <label>LINEDeveloperの権限の確認はしましたか？</label>
+                        <div class="radio-group">
+                            <label>
+                                <input type="radio" name="lineDeveloperPermission" value="yes">
+                                はい
+                            </label>
+                            <label>
+                                <input type="radio" name="lineDeveloperPermission" value="no">
+                                いいえ
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
                         <label for="accountName">サロンボードのアカウント名を入力してください</label>
                         <input type="text" id="accountName" name="accountName">
                     </div>
@@ -735,6 +749,7 @@ LINE名: {LINE名}
             const data = {
                 basicInfo: {
                     projectName: document.getElementById('projectName').value,
+                    lineDeveloperPermission: getRadioValue('lineDeveloperPermission'),
                     accountName: document.getElementById('accountName').value,
                     password: document.getElementById('password').value,
                     shareUrl: document.getElementById('shareUrl').value,
@@ -825,7 +840,9 @@ LINE名: {LINE名}
             // 基本情報項目の生成
             if (basic.projectName) basicInfoHTML += `<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding: 8px; background: #f8f9fa; border-radius: 4px;"><span><strong>店舗名:</strong> ${basic.projectName}</span><button onclick="copyText('${basic.projectName.replace(/'/g, "\\'")}')">📋</button></div>`;
 
-            if (basic.accountName) basicInfoHTML += `<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding: 8px; background: #f8f9fa; border-radius: 4px;"><span><strong>サロンボードのアカウント名:</strong> ${basic.accountName}</span><button onclick="copyText('${basic.accountName.replace(/'/g, "\\'")}')">📋</button></div>`;
+if (basic.lineDeveloperPermission) basicInfoHTML += `<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding: 8px; background: #f8f9fa; border-radius: 4px;"><span><strong>LINEDeveloperの権限の確認:</strong> ${basic.lineDeveloperPermission === 'yes' ? 'はい' : 'いいえ'}</span><button onclick="copyText('${basic.lineDeveloperPermission === 'yes' ? 'はい' : 'いいえ'}')">📋</button></div>`;
+
+if (basic.accountName) basicInfoHTML += `<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding: 8px; background: #f8f9fa; border-radius: 4px;"><span><strong>サロンボードのアカウント名:</strong> ${basic.accountName}</span><button onclick="copyText('${basic.accountName.replace(/'/g, "\\'")}')">📋</button></div>`;
 
             if (basic.password) basicInfoHTML += `<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding: 8px; background: #f8f9fa; border-radius: 4px;"><span><strong>サロンボードのパスワード:</strong> ${'*'.repeat(basic.password.length)}</span><button onclick="copyText('${basic.password.replace(/'/g, "\\'")}')">📋</button></div>`;
 
@@ -1242,6 +1259,10 @@ LINE名: {LINE名}
             
             // 基本情報の復元
             const basic = data.basicInfo;
+            if (basic.lineDeveloperPermission) {
+                const lineDevRadio = document.querySelector(`input[name="lineDeveloperPermission"][value="${basic.lineDeveloperPermission}"]`);
+                if (lineDevRadio) lineDevRadio.checked = true;
+            }
             if (basic.accountName) document.getElementById('accountName').value = basic.accountName;
             if (basic.password) document.getElementById('password').value = basic.password;
             if (basic.shareUrl) document.getElementById('shareUrl').value = basic.shareUrl;
