@@ -414,6 +414,26 @@
                 font-size: 1.8em;
             }
         }
+
+                .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 8px;
+        }
+
+        .checkbox-group label {
+            display: flex;
+            align-items: flex-start;
+            gap: 6px;
+            font-weight: normal;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            margin-top: 3px;
+        }
+
+        
     </style>
 </head>
 
@@ -463,6 +483,23 @@
                     <div class="form-group">
                         <label for="shareUrl">HPBの店舗のTOPページのURLを入力してください</label>
                         <input type="text" id="shareUrl" name="shareUrl">
+                    </div>
+
+                    <!-- 予約システムご利用時の注意事項 -->
+                    <div class="form-group">
+                        <label>予約システムご利用時の注意事項</label>
+                        <div class="checkbox-group">
+                            <label>
+                                <input type="checkbox" id="noticePasswordChange" name="noticePasswordChange">
+                                サロンボードのパスワードを変更された場合、セキュリティ上の仕様により本システムとの連携が解除されるため、<br>
+                                パスワード変更時には必ず運用サポート窓口までご連絡いただくことを確認しました。
+                            </label>
+                            <label>
+                                <input type="checkbox" id="noticeMenuChange" name="noticeMenuChange">
+                                サロンボード側でメニューの【削除・変更・追加】を行った場合でも公式LINEには自動反映されないため、<br>
+                                メニュー内容を変更された際には必ず運用サポート窓口までご連絡いただくことを確認しました。
+                            </label>
+                        </div>
                     </div>
 
                     <div class="form-group">
