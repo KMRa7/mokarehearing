@@ -451,41 +451,7 @@
                 </div>
 
                 <form id="hearingForm">
-                    <div class="form-group">
-                        <label for="projectName">店舗名を入力してください</label>
-                        <input type="text" id="projectName" name="projectName">
-                    </div>
-
-                    <div class="form-group">
-                        <label>LINEDeveloperの権限の確認はしましたか？</label>
-                        <div class="radio-group">
-                            <label>
-                                <input type="radio" name="lineDeveloperPermission" value="yes">
-                                はい
-                            </label>
-                            <label>
-                                <input type="radio" name="lineDeveloperPermission" value="no">
-                                いいえ
-                            </label>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="accountName">サロンボードのアカウント名を入力してください</label>
-                        <input type="text" id="accountName" name="accountName">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="password">サロンボードのパスワードを入力してください</label>
-                        <input type="text" id="password" name="password">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="shareUrl">HPBの店舗のTOPページのURLを入力してください</label>
-                        <input type="text" id="shareUrl" name="shareUrl">
-                    </div>
-
-                    <!-- 予約システムご利用時の注意事項 -->
+                    <!-- 予約システムご利用時の注意事項（←ここを一番最初に移動） -->
                     <div class="form-group">
                         <label>予約システムご利用時の注意事項</label>
                         <div class="checkbox-group">
@@ -501,7 +467,42 @@
                             </label>
                         </div>
                     </div>
-
+                
+                    <!-- 店舗名（注意事項の下に配置） -->
+                    <div class="form-group">
+                        <label for="projectName">店舗名を入力してください</label>
+                        <input type="text" id="projectName" name="projectName">
+                    </div>
+                
+                    <div class="form-group">
+                        <label>LINEDeveloperの権限の確認はしましたか？</label>
+                        <div class="radio-group">
+                            <label>
+                                <input type="radio" name="lineDeveloperPermission" value="yes">
+                                はい
+                            </label>
+                            <label>
+                                <input type="radio" name="lineDeveloperPermission" value="no">
+                                いいえ
+                            </label>
+                        </div>
+                    </div>
+                
+                    <div class="form-group">
+                        <label for="accountName">サロンボードのアカウント名を入力してください</label>
+                        <input type="text" id="accountName" name="accountName">
+                    </div>
+                
+                    <div class="form-group">
+                        <label for="password">サロンボードのパスワードを入力してください</label>
+                        <input type="text" id="password" name="password">
+                    </div>
+                
+                    <div class="form-group">
+                        <label for="shareUrl">HPBの店舗のTOPページのURLを入力してください</label>
+                        <input type="text" id="shareUrl" name="shareUrl">
+                    </div>
+                
                     <div class="form-group">
                         <label>メニューボタンを設定しますか?</label>
                         <div class="radio-group">
@@ -515,12 +516,12 @@
                             </label>
                         </div>
                     </div>
-
+                
                     <div class="form-group">
                         <label for="nomenu">不必要なメニュー名を入力してください</label>
                         <textarea type="text" id="nomenu" name="nomenu"> </textarea>
                     </div>
-
+                
                     <div class="form-group">
                         <label>クーポンボタンを設定しますか?</label>
                         <div class="radio-group">
@@ -534,75 +535,75 @@
                             </label>
                         </div>
                     </div>
-
+                
                     <div class="form-group">
                         <label for="nocoupon">不必要なクーポン名を入力してください</label>
                         <textarea type="text" id="nocoupon" name="nocoupon"></textarea>
                     </div>
-
+                
                     <div class="section-title">
                         ⚙️ 通知テキスト設定
                     </div>
-
+                
                     <div class="form-group">
                         <label for="notificationEmails">通知先のメールアドレスをご記入ください（複数可）</label>
                         <textarea id="notificationEmails" name="notificationEmails"
                             placeholder="通知先のメールアドレスをご記入ください..."></textarea>
                     </div>
-
+                
                     <div class="form-group">
                         <label for="newReservationAdmin">メール通知 - 新規予約時</label>
                         <textarea id="newReservationAdmin" name="newReservationAdmin"
                             placeholder="管理者向け新規予約通知テンプレート...">新しい予約が入りました
-
-LINE名: {LINE名}
-予約日時: {予約日時}
-メニュー: {メニュー名}</textarea>
+                
+                LINE名: {LINE名}
+                予約日時: {予約日時}
+                メニュー: {メニュー名}</textarea>
                     </div>
-
+                
                     <div class="form-group">
                         <label for="cancelReservationAdmin">メール通知 - キャンセル時</label>
                         <textarea id="cancelReservationAdmin" name="cancelReservationAdmin"
                             placeholder="管理者向けキャンセル通知テンプレート...">予約がキャンセルされました
-
-LINE名: {LINE名}
-予約日時: {予約日時}
-メニュー: {メニュー名}</textarea>
+                
+                LINE名: {LINE名}
+                予約日時: {予約日時}
+                メニュー: {メニュー名}</textarea>
                     </div>
-
+                
                     <div class="form-group">
                         <label for="newReservationUser">ユーザー向け通知 - 新規予約時</label>
                         <textarea id="newReservationUser" name="newReservationUser" placeholder="ユーザー向け新規予約通知テンプレート...">{LINE名}様
-
-予約を受け付けました。
-予約日時: {予約日時}
-メニュー: {メニュー名}</textarea>
+                
+                予約を受け付けました。
+                予約日時: {予約日時}
+                メニュー: {メニュー名}</textarea>
                     </div>
-
+                
                     <div class="form-group">
                         <label for="cancelReservationUser">ユーザー向け通知 - キャンセル時</label>
                         <textarea id="cancelReservationUser" name="cancelReservationUser"
                             placeholder="ユーザー向けキャンセル通知テンプレート...">{LINE名}様
-
-予約をキャンセルしました。
-予約日時: {予約日時}
-メニュー: {メニュー名}</textarea>
+                
+                予約をキャンセルしました。
+                予約日時: {予約日時}
+                メニュー: {メニュー名}</textarea>
                     </div>
-
+                
                     <div class="form-group">
                         <label for="reminderTime">リマインド設定 - お送りする時間</label>
                         <textarea id="reminderTime" name="reminderTime" placeholder="〇日前　〇時間前　〇分前"></textarea>
                     </div>
-
+                
                     <div class="form-group">
                         <label for="reminderMessage">リマインドメッセージ</label>
                         <textarea id="reminderMessage" name="reminderMessage" placeholder="リマインドメッセージテンプレート...">{LINE名}様
-
-まもなく予約時間です。
-予約日時: {予約日時}
-メニュー: {メニュー名}</textarea>
+                
+                まもなく予約時間です。
+                予約日時: {予約日時}
+                メニュー: {メニュー名}</textarea>
                     </div>
-
+                
                     <div class="form-group">
                         <label for="overview">備考・その他の設定</label>
                         <textarea id="overview" name="overview" placeholder="その他の設定や備考を記入してください..."></textarea>
