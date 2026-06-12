@@ -187,21 +187,22 @@
             </div>
 
             <div class="conditional" data-show-when="categoryButton=yes">
+              <div class="toggle-row order-toggle-row">
+                <div class="toggle-text">
+                  <strong>総合並び順を設定する</strong>
+                  <span>メニューとクーポンの項目を1列にまとめ、並び順を自由に設定します</span>
+                </div>
+                <label class="switch">
+                  <input type="checkbox" id="combinedToggle">
+                  <span class="switch-track"></span>
+                </label>
+              </div>
               <div id="catContainer"></div>
               <button type="button" class="btn btn-ghost btn-block" id="addCatBtn" style="margin-top:14px;">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 5v14M5 12h14" stroke-linecap="round"/></svg>
                 カテゴリーを追加
               </button>
             </div>
-          </div>
-
-          <div class="card">
-            <div class="card-head">
-              <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" stroke-linecap="round"/></svg></div>
-              <div class="htext"><h3>総合並び順設定</h3><p>公式LINEでのボタンの表示順</p></div>
-            </div>
-            <p class="ord-hint">公式LINEに表示するボタンの並び順です。行をドラッグして上下に並べ替えてください。カテゴリーは Step 4 で追加すると自動でこの一覧に加わります。</p>
-            <div class="ord-list" id="orderList"></div>
           </div>
         </section>
 
