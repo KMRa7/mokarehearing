@@ -424,8 +424,11 @@ body {
   display: grid; place-items: center; font-size: 13px; font-weight: 700;
 }
 .cat-head .input { flex: 1; }
-.cat-body { padding: 18px 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
-@media (max-width: 720px) { .cat-body { grid-template-columns: 1fr; } }
+.cat-body { padding: 18px 16px; }
+.cat-body.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+.cat-body.one-col { display: block; }
+@media (max-width: 720px) { .cat-body.two-col { grid-template-columns: 1fr; } }
+.order-toggle-row { padding: 2px 0 16px; margin-bottom: 18px; border-bottom: 1px solid var(--line); }
 
 .subcol h5 {
   display: flex; align-items: center; gap: 7px;
@@ -439,6 +442,21 @@ body {
 .subcol h5 .tag.coupon { background: var(--warn); }
 
 .row-item { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.row-item.combined { padding: 4px; border-radius: 9px; }
+.row-item.dragging { opacity: .5; box-shadow: var(--shadow-md); background: var(--surface); border-radius: 9px; }
+.row-drag {
+  flex-shrink: 0; width: 22px; height: 30px; display: grid; place-items: center;
+  color: var(--ink-3); cursor: grab; border-radius: 6px; transition: .15s;
+}
+.row-drag:hover { background: var(--surface-3); color: var(--ink-2); }
+.row-drag:active { cursor: grabbing; }
+.row-drag svg { width: 15px; height: 15px; }
+.row-tag {
+  flex-shrink: 0; font-size: 10.5px; font-weight: 600;
+  padding: 3px 9px; border-radius: 999px; white-space: nowrap;
+}
+.row-tag.menu { background: var(--accent-soft); color: var(--accent-strong); }
+.row-tag.coupon { background: var(--warn-soft); color: var(--warn); }
 .row-num {
   width: 22px; height: 22px; border-radius: 6px; flex-shrink: 0;
   background: var(--surface-3); color: var(--ink-3);
@@ -460,12 +478,26 @@ body {
   padding: 8px 12px; border-radius: 7px; margin-top: 4px; transition: .15s;
 }
 .add-row:hover { background: var(--accent-soft); }
+.add-row.coupon { color: var(--warn); border-color: color-mix(in srgb, var(--warn) 45%, var(--line)); }
+.add-row.coupon:hover { background: var(--warn-soft); }
+.add-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 6px; }
 .add-row svg { width: 14px; height: 14px; stroke-width: 2.2; }
 
 /* =========================================================
    Overall order (総合並び順設定)
    ========================================================= */
 .ord-hint { font-size: 12.5px; color: var(--ink-3); margin-bottom: 14px; }
+.toggle-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.toggle-text strong { display: block; font-size: 14.5px; font-weight: 600; color: var(--ink); }
+.toggle-text span { font-size: 12.5px; color: var(--ink-3); }
+.switch { position: relative; display: inline-block; width: 48px; height: 28px; flex-shrink: 0; cursor: pointer; }
+.switch input { position: absolute; opacity: 0; width: 0; height: 0; }
+.switch-track { position: absolute; inset: 0; border-radius: 999px; background: var(--line-2); transition: .2s; }
+.switch-track::after { content: ""; position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%; background: #fff; box-shadow: var(--shadow-sm); transition: .2s; }
+.switch input:checked + .switch-track { background: var(--accent); }
+.switch input:checked + .switch-track::after { transform: translateX(20px); }
+.switch input:focus-visible + .switch-track { box-shadow: 0 0 0 3px var(--accent-soft); }
+#orderPanel { margin-top: 18px; border-top: 1px solid var(--line); padding-top: 18px; }
 .ord-list { display: flex; flex-direction: column; gap: 8px; }
 .ord-item {
   display: flex; align-items: center; gap: 12px;
