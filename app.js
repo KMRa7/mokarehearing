@@ -17,7 +17,7 @@
 
   let currentStep = 1;
   let catSeq = 0;
-  let overallOrder = [];
+  let combinedMode = false;
   let suppressAutosave = false;
 
   const $ = (s, r) => (r || document).querySelector(s);
@@ -172,12 +172,26 @@
       <p>まだカテゴリーがありません。「カテゴリーを追加」から登録してください。</p></div>`;
   }
 
-  function rowHtml(kind, value) {
-    return `<div class="row-item">
+  const ICON_ADD = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 5v14M5 12h14" stroke-linecap="round"/></svg>`;
+  const ICON_X = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 6 6 18M6 6l12 12" stroke-linecap="round"/></svg>`;
+  const ICON_GRIP = `<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="6" r="1.4"/><circle cx="9" cy="12" r="1.4"/><circle cx="9" cy="18" r="1.4"/><circle cx="15" cy="6" r="1.4"/><circle cx="15" cy="12" r="1.4"/><circle cx="15" cy="18" r="1.4"/></svg>`;
+
+  function rowHtml(type, value) {
+    return `<div class="row-item" data-type="${type}">
+      <span class="row-drag" title="ドラッグで並べ替え">${ICON_GRIP}</span>
       <div class="row-num"></div>
-      <input type="text" class="input" value="${esc(value)}" placeholder="${kind === "menu" ? "メニューからの追加…" : "クーポンからの追加…"}">
-      <button type="button" class="icon-btn" data-remove-row aria-label="削除">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 6 6 18M6 6l12 12" stroke-linecap="round"/></svg></button>
+      <input type="text" class="input" value="${esc(value)}" placeholder="${type === "menu" ? "メニュー項目を入力…" : "クーポン項目を入力…"}">
+      <button type="button" class="icon-btn" data-remove-row aria-label="削除">${ICON_X}</button>
+    </div>`;
+  }
+
+  function rowHtmlCombined(type, value) {
+    return `<div class="row-item combined" data-type="${type}">
+      <span class="row-drag" title="ドラッグで並べ替え">${ICON_GRIP}</span>
+      <div class="row-num"></div>
+      <span class="row-tag ${type}">${type === "menu" ? "メニュー" : "クーポン"}</span>
+      <input type="text" class="input" value="${esc(value)}" placeholder="${type === "menu" ? "メニュー項目を入力…" : "クーポン項目を入力…"}">
+      <button type="button" class="icon-btn" data-remove-row aria-label="削除">${ICON_X}</button>
     </div>`;
   }
 
@@ -198,18 +212,7 @@
         <button type="button" class="icon-btn" data-remove-cat aria-label="カテゴリー削除">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m-9 0v14a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
       </div>
-      <div class="cat-body">
-        <div class="subcol">
-          <h5><span class="tag menu"></span>メニューからの追加項目</h5>
-          <div class="rows" data-rows="menu"></div>
-          <button type="button" class="add-row" data-add="menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 5v14M5 12h14" stroke-linecap="round"/></svg>項目を追加</button>
-        </div>
-        <div class="subcol">
-          <h5><span class="tag coupon"></span>クーポンからの追加項目</h5>
-          <div class="rows" data-rows="coupon"></div>
-          <button type="button" class="add-row" data-add="coupon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 5v14M5 12h14" stroke-linecap="round"/></svg>項目を追加</button>
-        </div>
-      </div>`;
+      <div class="cat-body"></div>`;
     wrap.appendChild(el);
 
     const dragHandle = $(".cat-drag", el);
@@ -217,12 +220,8 @@
     dragHandle.addEventListener("touchstart", () => el.setAttribute("draggable", "true"), { passive: true });
     el.addEventListener("dragend", () => el.removeAttribute("draggable"));
 
-    if (data) {
-      (data.menuItems || []).forEach((v) => $('[data-rows="menu"]', el).insertAdjacentHTML("beforeend", rowHtml("menu", v)));
-      (data.couponItems || []).forEach((v) => $('[data-rows="coupon"]', el).insertAdjacentHTML("beforeend", rowHtml("coupon", v)));
-    }
+    renderCatBody(el, normalizeItems(data));
     renumberCats();
-    renumberRows(el);
     return el;
   }
 
@@ -231,9 +230,94 @@
     if (!$("#catContainer .cat")) $("#catContainer").innerHTML = catEmptyHtml();
   }
   function renumberRows(catEl) {
-    $$(".rows", catEl).forEach((rows) => {
+    $$('.cat-body.two-col .rows', catEl).forEach((rows) => {
       $$(".row-num", rows).forEach((n, i) => (n.textContent = i + 1));
     });
+  }
+  function renumberCombined(catEl) {
+    $$(".rows.combined .row-item", catEl).forEach((r, i) => { $(".row-num", r).textContent = i + 1; });
+  }
+
+  function normalizeItems(data) {
+    if (data && Array.isArray(data.items)) {
+      return data.items.map((it) => ({ type: it.type === "coupon" ? "coupon" : "menu", value: it.value || "" }));
+    }
+    if (data) {
+      return [
+        ...(data.menuItems || []).map((v) => ({ type: "menu", value: v })),
+        ...(data.couponItems || []).map((v) => ({ type: "coupon", value: v })),
+      ];
+    }
+    return [];
+  }
+
+  function renderCatBody(catEl, items) {
+    const body = $(".cat-body", catEl);
+    if (combinedMode) {
+      body.className = "cat-body one-col";
+      body.innerHTML = `
+        <div class="rows combined" data-rows="all">${items.map((it) => rowHtmlCombined(it.type, it.value)).join("")}</div>
+        <div class="add-actions">
+          <button type="button" class="add-row" data-add="menu">${ICON_ADD}メニュー項目を追加</button>
+          <button type="button" class="add-row coupon" data-add="coupon">${ICON_ADD}クーポン項目を追加</button>
+        </div>`;
+      renumberCombined(catEl);
+      enableRowSortable($(".rows.combined", body), () => { renumberCombined(catEl); scheduleSave(); });
+    } else {
+      body.className = "cat-body two-col";
+      const menuItems = items.filter((i) => i.type === "menu");
+      const couponItems = items.filter((i) => i.type === "coupon");
+      body.innerHTML = `
+        <div class="subcol">
+          <h5><span class="tag menu"></span>メニューからの追加項目</h5>
+          <div class="rows" data-rows="menu">${menuItems.map((i) => rowHtml("menu", i.value)).join("")}</div>
+          <button type="button" class="add-row" data-add="menu">${ICON_ADD}項目を追加</button>
+        </div>
+        <div class="subcol">
+          <h5><span class="tag coupon"></span>クーポンからの追加項目</h5>
+          <div class="rows" data-rows="coupon">${couponItems.map((i) => rowHtml("coupon", i.value)).join("")}</div>
+          <button type="button" class="add-row coupon" data-add="coupon">${ICON_ADD}項目を追加</button>
+        </div>`;
+      renumberRows(catEl);
+      $$("[data-rows]", body).forEach((rows) => enableRowSortable(rows, () => { renumberRows(catEl); scheduleSave(); }));
+    }
+  }
+
+  function readCatItems(catEl) {
+    const combined = $(".rows.combined", catEl);
+    if (combined) {
+      return $$(".row-item", combined).map((r) => ({ type: r.dataset.type, value: $("input", r).value }));
+    }
+    const items = [];
+    $$('[data-rows="menu"] .row-item', catEl).forEach((r) => items.push({ type: "menu", value: $("input", r).value }));
+    $$('[data-rows="coupon"] .row-item', catEl).forEach((r) => items.push({ type: "coupon", value: $("input", r).value }));
+    return items;
+  }
+
+  function rerenderAllCatBodies() {
+    $$("#catContainer .cat").forEach((c) => renderCatBody(c, readCatItems(c)));
+  }
+
+  function applyCombinedToggle() {
+    const t = $("#combinedToggle");
+    if (t) t.checked = combinedMode;
+  }
+
+  function enableRowSortable(container, onReorder) {
+    if (!container) return;
+    container.addEventListener("mousedown", (e) => {
+      const h = e.target.closest(".row-drag");
+      if (h) h.closest(".row-item").setAttribute("draggable", "true");
+    });
+    container.addEventListener("touchstart", (e) => {
+      const h = e.target.closest(".row-drag");
+      if (h) h.closest(".row-item").setAttribute("draggable", "true");
+    }, { passive: true });
+    container.addEventListener("dragend", (e) => {
+      const it = e.target.closest(".row-item");
+      if (it) it.removeAttribute("draggable");
+    });
+    enableSortable(container, ".row-item", onReorder || (() => scheduleSave()));
   }
 
   function wireCatDelegation() {
@@ -242,9 +326,16 @@
       const addBtn = e.target.closest("[data-add]");
       if (addBtn) {
         const kind = addBtn.dataset.add;
-        const rows = $(`[data-rows="${kind}"]`, addBtn.closest(".cat"));
-        rows.insertAdjacentHTML("beforeend", rowHtml(kind, ""));
-        renumberRows(addBtn.closest(".cat"));
+        const cat = addBtn.closest(".cat");
+        if (combinedMode) {
+          const rows = $(".rows.combined", cat);
+          rows.insertAdjacentHTML("beforeend", rowHtmlCombined(kind, ""));
+          renumberCombined(cat);
+        } else {
+          const rows = $(`[data-rows="${kind}"]`, cat);
+          rows.insertAdjacentHTML("beforeend", rowHtml(kind, ""));
+          renumberRows(cat);
+        }
         scheduleSave();
         return;
       }
@@ -252,90 +343,23 @@
       if (rmRow) {
         const cat = rmRow.closest(".cat");
         rmRow.closest(".row-item").remove();
-        renumberRows(cat); scheduleSave(); return;
+        if (combinedMode) renumberCombined(cat); else renumberRows(cat);
+        scheduleSave(); return;
       }
       const rmCat = e.target.closest("[data-remove-cat]");
       if (rmCat) {
         rmCat.closest(".cat").remove();
-        renumberCats(); syncOverallOrder(); scheduleSave(); return;
+        renumberCats(); scheduleSave(); return;
       }
     });
-    wrap.addEventListener("input", (e) => {
-      if (e.target.classList.contains("cat-name")) {
-        updateOrderLabel(e.target.closest(".cat").dataset.cat, e.target.value);
-      }
+    $("#addCatBtn").addEventListener("click", () => { addCat(); scheduleSave(); });
+    $("#combinedToggle").addEventListener("change", (e) => {
+      combinedMode = e.target.checked;
+      rerenderAllCatBodies();
+      scheduleSave();
     });
-    $("#addCatBtn").addEventListener("click", () => { addCat(); syncOverallOrder(); scheduleSave(); });
   }
 
-  /* ---------- Overall order (総合並び順) ---------- */
-  function orderInfo(tok) {
-    if (tok === "menu") return { label: "メニューボタン", kind: "menu", tag: "メニュー",
-      icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18" stroke-linecap="round"/></svg>` };
-    if (tok === "coupon") return { label: "クーポンボタン", kind: "coupon", tag: "クーポン",
-      icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 9a3 3 0 0 0 0 6v3a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-3a3 3 0 0 1 0-6V6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2Z"/></svg>` };
-    const id = tok.split(":")[1];
-    const el = $(`#catContainer .cat[data-cat="${id}"]`);
-    const name = el ? $(".cat-name", el).value.trim() : "";
-    return { label: name || "（名称未設定カテゴリー）", kind: "cat", tag: "カテゴリー",
-      icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 7h18M3 12h18M3 17h10" stroke-linecap="round"/></svg>` };
-  }
-
-  function renderOrderList() {
-    const list = $("#orderList");
-    if (!list) return;
-    list.innerHTML = overallOrder.map((tok, i) => {
-      const info = orderInfo(tok);
-      return `<div class="ord-item" draggable="true" data-token="${esc(tok)}">
-        <span class="ord-handle"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="6" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="9" cy="18" r="1.5"/><circle cx="15" cy="6" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="15" cy="18" r="1.5"/></svg></span>
-        <span class="ord-num">${i + 1}</span>
-        <span class="ord-ic ${info.kind}">${info.icon}</span>
-        <span class="ord-label">${esc(info.label)}</span>
-        <span class="ord-tag">${info.tag}</span>
-      </div>`;
-    }).join("");
-  }
-
-  function syncOverallOrder() {
-    const catIds = $$("#catContainer .cat").map((c) => c.dataset.cat);
-    if (!overallOrder.includes("menu")) overallOrder.unshift("menu");
-    if (!overallOrder.includes("coupon")) {
-      const mi = overallOrder.indexOf("menu");
-      overallOrder.splice(mi + 1, 0, "coupon");
-    }
-    overallOrder = overallOrder.filter((t) => !t.startsWith("cat:") || catIds.includes(t.split(":")[1]));
-    catIds.forEach((id) => { if (!overallOrder.includes("cat:" + id)) overallOrder.push("cat:" + id); });
-    renderOrderList();
-  }
-
-  function readOrderFromDOM() {
-    overallOrder = $$("#orderList .ord-item").map((el) => el.dataset.token);
-    $$("#orderList .ord-item").forEach((el, i) => { $(".ord-num", el).textContent = i + 1; });
-  }
-
-  function updateOrderLabel(id, value) {
-    const el = $(`#orderList .ord-item[data-token="cat:${id}"] .ord-label`);
-    if (el) el.textContent = value.trim() || "（名称未設定カテゴリー）";
-  }
-
-  function restoreOrder(saved, idByIndex) {
-    overallOrder = (saved || []).map((o) => {
-      if (o.t === "menu") return "menu";
-      if (o.t === "coupon") return "coupon";
-      if (o.t === "cat" && idByIndex[o.i] != null) return "cat:" + idByIndex[o.i];
-      return null;
-    }).filter(Boolean);
-    syncOverallOrder();
-  }
-
-  function orderLabels(d) {
-    return (d.order || []).map((o) => {
-      if (o.t === "menu") return "メニューボタン";
-      if (o.t === "coupon") return "クーポンボタン";
-      if (o.t === "cat") { const c = (d.categories || [])[o.i]; return c ? (c.name || "（名称未設定カテゴリー）") : null; }
-      return null;
-    }).filter(Boolean);
-  }
 
   /* ---------- Sortable (HTML5 DnD) ---------- */
   function afterElement(container, sel, y) {
@@ -351,15 +375,15 @@
   function enableSortable(container, sel, onReorder) {
     container.addEventListener("dragstart", (e) => {
       const it = e.target.closest(sel);
-      if (it && container.contains(it)) setTimeout(() => it.classList.add("dragging"), 0);
+      if (it && it === e.target && container.contains(it)) setTimeout(() => it.classList.add("dragging"), 0);
     });
     container.addEventListener("dragend", (e) => {
       const it = e.target.closest(sel);
-      if (it) { it.classList.remove("dragging"); onReorder && onReorder(); }
+      if (it && it === e.target) { it.classList.remove("dragging"); onReorder && onReorder(); }
     });
     container.addEventListener("dragover", (e) => {
       const dragging = $(".dragging", container);
-      if (!dragging) return;
+      if (!dragging || !dragging.matches(sel)) return;
       e.preventDefault();
       const after = afterElement(container, sel, e.clientY);
       if (after == null) container.appendChild(dragging);
@@ -372,30 +396,14 @@
   function val(id) { const el = document.getElementById(id); return el ? el.value : ""; }
   function radio(name) { const r = $(`input[name="${name}"]:checked`); return r ? r.value : ""; }
 
-  function collectCategoriesAndOrder() {
-    const catEls = $$("#catContainer .cat");
-    const categories = [];
-    const idToIndex = {};
-    catEls.forEach((c) => {
-      const name = $(".cat-name", c).value.trim();
-      const menuItems = $$('[data-rows="menu"] input', c).map((i) => i.value.trim()).filter(Boolean);
-      const couponItems = $$('[data-rows="coupon"] input', c).map((i) => i.value.trim()).filter(Boolean);
-      if (name || menuItems.length || couponItems.length) {
-        idToIndex[c.dataset.cat] = categories.length;
-        categories.push({ name, menuItems, couponItems });
-      }
-    });
-    const order = overallOrder.map((tok) => {
-      if (tok === "menu") return { t: "menu" };
-      if (tok === "coupon") return { t: "coupon" };
-      const id = tok.split(":")[1];
-      return (id in idToIndex) ? { t: "cat", i: idToIndex[id] } : null;
-    }).filter(Boolean);
-    return { categories, order };
+  function collectCategories() {
+    return $$("#catContainer .cat").map((c) => ({
+      name: $(".cat-name", c).value.trim(),
+      items: readCatItems(c).map((it) => ({ type: it.type, value: it.value.trim() })).filter((it) => it.value),
+    })).filter((c) => c.name || c.items.length);
   }
 
   function collectData() {
-    const co = collectCategoriesAndOrder();
     return {
       projectName: val("projectName").trim(),
       noticePasswordChange: $("#noticePasswordChange").checked,
@@ -407,8 +415,8 @@
       nomenu: val("nomenu"),
       nocoupon: val("nocoupon"),
       categoryButton: radio("categoryButton"),
-      categories: co.categories,
-      order: co.order,
+      categories: collectCategories(),
+      combinedMode: combinedMode,
       notificationEmails: val("notificationEmails"),
       newReservationAdmin: val("newReservationAdmin"),
       cancelReservationAdmin: val("cancelReservationAdmin"),
@@ -445,12 +453,12 @@
     $("#reminderTime").value = d.reminderTime || "";
     $("#reminderMessage").value = d.reminderMessage || "";
     $("#overview").value = d.overview || "";
+    combinedMode = !!d.combinedMode;
+    applyCombinedToggle();
     $("#catContainer").innerHTML = "";
     catSeq = 0;
-    const idByIndex = [];
-    (d.categories || []).forEach((c, i) => { const el = addCat(c); idByIndex[i] = el.dataset.cat; });
+    (d.categories || []).forEach((c) => addCat(c));
     renumberCats();
-    restoreOrder(d.order, idByIndex);
     wireCheckVisual();
     evalConditionals();
     suppressAutosave = false;
@@ -462,8 +470,8 @@
     $("#catContainer").innerHTML = "";
     catSeq = 0;
     renumberCats();
-    overallOrder = [];
-    syncOverallOrder();
+    combinedMode = false;
+    applyCombinedToggle();
     $("#password").type = "password";
     $("#pwToggle").classList.remove("revealed");
     wireCheckVisual();
@@ -652,21 +660,17 @@
     html += reviewRow("除外クーポン", d.nocoupon);
     html += reviewRow("カテゴリーボタン", yn(d.categoryButton), { required: true });
     html += reviewRow("登録カテゴリー数", d.categories.length ? d.categories.length + " 件" : "");
+    if (d.categoryButton === "yes") html += reviewRow("総合並び順", d.combinedMode ? "設定する（メニュー・クーポンを1列で管理）" : "設定しない");
     html += `</dl></div>`;
-
-    const oLabels = orderLabels(d);
-    if (oLabels.length) {
-      html += `<div class="review-block"><h4><span class="n">順番</span>公式LINE 表示順</h4><dl class="review-grid">`;
-      oLabels.forEach((l, i) => { html += reviewRow(`${i + 1} 番目`, l); });
-      html += `</dl></div>`;
-    }
 
     if (d.categories.length) {
       html += `<div class="review-block"><h4><span class="n">詳細</span>カテゴリー内訳</h4><dl class="review-grid">`;
       d.categories.forEach((c) => {
+        const mn = (c.items || []).filter((i) => i.type === "menu").length;
+        const cp = (c.items || []).filter((i) => i.type === "coupon").length;
         const parts = [];
-        if (c.menuItems.length) parts.push(`メニュー ${c.menuItems.length}`);
-        if (c.couponItems.length) parts.push(`クーポン ${c.couponItems.length}`);
+        if (mn) parts.push(`メニュー ${mn}`);
+        if (cp) parts.push(`クーポン ${cp}`);
         html += reviewRow(c.name || "（名称未設定）", parts.join(" ・ ") || "項目なし");
       });
       html += `</dl></div>`;
@@ -727,29 +731,31 @@
     mc += item("除外クーポン", d.nocoupon, true);
     mc += item("カテゴリーボタン", yn(d.categoryButton));
 
-    // 総合並び順（公式LINE 表示順）
-    const oLabels = orderLabels(d);
-    let orderHtml = "";
-    if (oLabels.length) {
-      orderHtml = `<div class="ord-rows">` + oLabels.map((lb, i) =>
-        `<div class="ord-row"><span class="ord-n">${i + 1}</span><span>${esc(lb)}</span>${copyBtn(lb)}</div>`).join("") + `</div>`;
-      const allText = oLabels.map((l, i) => `${i + 1}. ${l}`).join("\n");
-      orderHtml += `<div class="row"><div class="v-inline"><span class="v-label">表示順をまとめてコピー</span></div>${copyBtn(allText)}</div>`;
-    }
-
     // カテゴリー詳細
+    const catTagHtml = (type) => `<span class="chip-tag ${type}">${type === "menu" ? "メニュー" : "クーポン"}</span>`;
     let cats = "";
     d.categories.forEach((c) => {
+      const items = c.items || [];
       let inner = "";
-      if (c.menuItems.length) {
-        inner += `<div class="cat-sub"><div class="cat-sub-h"><span class="dot menu"></span>メニューからの追加</div>`;
-        c.menuItems.forEach((m) => inner += `<div class="chip">${esc(m)}${copyBtn(m)}</div>`);
-        inner += `</div>`;
-      }
-      if (c.couponItems.length) {
-        inner += `<div class="cat-sub"><div class="cat-sub-h"><span class="dot coupon"></span>クーポンからの追加</div>`;
-        c.couponItems.forEach((m) => inner += `<div class="chip">${esc(m)}${copyBtn(m)}</div>`);
-        inner += `</div>`;
+      if (d.combinedMode) {
+        if (items.length) {
+          inner += `<div class="cat-sub">`;
+          items.forEach((it) => inner += `<div class="chip">${catTagHtml(it.type)}<span class="chip-v">${esc(it.value)}</span>${copyBtn(it.value)}</div>`);
+          inner += `</div>`;
+        }
+      } else {
+        const menuItems = items.filter((i) => i.type === "menu");
+        const couponItems = items.filter((i) => i.type === "coupon");
+        if (menuItems.length) {
+          inner += `<div class="cat-sub"><div class="cat-sub-h"><span class="dot menu"></span>メニューからの追加</div>`;
+          menuItems.forEach((m) => inner += `<div class="chip"><span class="chip-v">${esc(m.value)}</span>${copyBtn(m.value)}</div>`);
+          inner += `</div>`;
+        }
+        if (couponItems.length) {
+          inner += `<div class="cat-sub"><div class="cat-sub-h"><span class="dot coupon"></span>クーポンからの追加</div>`;
+          couponItems.forEach((m) => inner += `<div class="chip"><span class="chip-v">${esc(m.value)}</span>${copyBtn(m.value)}</div>`);
+          inner += `</div>`;
+        }
       }
       cats += `<div class="cat-card"><div class="cat-card-h"><h3>${esc(c.name || "（名称未設定）")}</h3>${copyBtn(c.name)}</div>${inner ? `<div class="cat-card-b">${inner}</div>` : ""}</div>`;
     });
@@ -807,6 +813,10 @@ body{font-family:"IBM Plex Sans JP","Hiragino Kaku Gothic ProN",system-ui,sans-s
 .cat-sub-h{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:600;color:var(--ink2);margin-bottom:9px;}
 .dot{width:8px;height:8px;border-radius:3px;}.dot.menu{background:var(--accent);}.dot.coupon{background:var(--warn);}
 .chip{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:13.5px;padding:8px 12px;background:var(--bg);border:1px solid var(--line);border-radius:8px;margin-bottom:7px;}
+.chip-v{flex:1;}
+.chip-tag{font-size:10.5px;font-weight:600;padding:2px 8px;border-radius:999px;flex-shrink:0;white-space:nowrap;}
+.chip-tag.menu{background:var(--accent-soft);color:var(--accent-ink);}
+.chip-tag.coupon{background:#f6ecd9;color:var(--warn);}
 .ord-rows{display:flex;flex-direction:column;gap:8px;margin-bottom:8px;}
 .ord-row{display:flex;align-items:center;gap:12px;font-size:14px;padding:10px 12px;background:var(--bg);border:1px solid var(--line);border-radius:8px;}
 .ord-row>span:nth-child(2){flex:1;font-weight:500;}
@@ -822,7 +832,6 @@ body{font-family:"IBM Plex Sans JP","Hiragino Kaku Gothic ProN",system-ui,sans-s
   <div class="sheet-head"><div class="logo"></div><div><h1>${esc(title)}</h1><p>mokare 予約システム導入ヒアリングシート</p></div></div>
   <div class="meta">作成日時：${new Date().toLocaleString("ja-JP")}</div>
   ${section("基本設定・連携アカウント", basic)}
-  ${orderHtml ? section("公式LINE 表示順", orderHtml) : ""}
   ${section("除外メニュー・クーポン・カテゴリー設定", mc)}
   ${cats ? section("カテゴリー詳細", cats) : ""}
   ${section("通知テキスト設定", notify)}
@@ -882,9 +891,8 @@ document.addEventListener("click",function(e){var b=e.target.closest(".cp");if(b
     goToStep(1);
     addCat(); // start with one empty category
     wireCatDelegation();
-    enableSortable($("#catContainer"), ".cat", () => { renumberCats(); syncOverallOrder(); scheduleSave(); });
-    enableSortable($("#orderList"), ".ord-item", () => { readOrderFromDOM(); scheduleSave(); });
-    syncOverallOrder();
+    enableSortable($("#catContainer"), ".cat", () => { renumberCats(); scheduleSave(); });
+    applyCombinedToggle();
     wireCheckVisual();
     wirePassword();
     wireDrawer();
