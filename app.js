@@ -598,20 +598,34 @@
     });
   }
 
-  /* ---------- New sheet ---------- */
+  /* ---------- Reset / New sheet ---------- */
+  function styleConfirmOnce(label, color) {
+    $("#confirmOk").textContent = label;
+    $("#confirmOk").style.background = color;
+    setTimeout(() => {
+      const restore = () => { $("#confirmOk").textContent = "削除する"; $("#confirmOk").style.background = "var(--danger)"; };
+      $("#confirmCancel").addEventListener("click", restore, { once: true });
+      $("#confirmOk").addEventListener("click", restore, { once: true });
+    }, 0);
+  }
+
   function wireNew() {
     $("#newSheetBtn").addEventListener("click", () => {
       confirmDialog("新規シートを作成", "現在の入力内容をクリアして新しいシートを始めます。保存済みデータは残ります。", () => {
         clearForm(); goToStep(1); toast("新規シートを開始しました", "ok");
       });
-      $("#confirmOk").textContent = "新規作成";
-      $("#confirmOk").style.background = "var(--accent)";
-      // reset button after close
-      setTimeout(() => {
-        const restore = () => { $("#confirmOk").textContent = "削除する"; $("#confirmOk").style.background = "var(--danger)"; };
-        $("#confirmCancel").addEventListener("click", restore, { once: true });
-        $("#confirmOk").addEventListener("click", restore, { once: true });
-      }, 0);
+      styleConfirmOnce("新規作成", "var(--accent)");
+    });
+
+    $("#resetBtn").addEventListener("click", () => {
+      const name = val("projectName").trim();
+      const msg = name
+        ? `「${name}」の現在の入力内容をすべてクリアします。（保存済みデータも削除されます）`
+        : "現在の入力内容をすべてクリアします。";
+      confirmDialog("入力内容をリセット", msg, () => {
+        if (name) { const sheets = allSheets(); delete sheets[name]; writeSheets(sheets); renderSavedList(); }
+        clearForm(); goToStep(1); toast("入力内容をリセットしました", "ok");
+      });
     });
   }
 
@@ -916,17 +930,17 @@ document.addEventListener("click",function(e){var b=e.target.closest(".cp");if(b
     form.addEventListener("input", scheduleSave);
     form.addEventListener("change", scheduleSave);
 
-    // project name → auto-load existing
-    $("#projectName").addEventListener("change", () => {
+    // project name → 入力したタイミングで保存済みを復元
+    let lastRestored = "";
+    $("#projectName").addEventListener("input", () => {
       const name = val("projectName").trim();
-      if (!name) return;
+      if (!name || name === lastRestored) return;
       const s = allSheets()[name];
-      if (s && s.data && (s.data.categories || []).length >= 0) {
-        // only auto-load if current form is essentially empty besides the name
-        const cur = collectData();
-        const isEmpty = !cur.accountName && !cur.password && cur.categories.length === 0 && !cur.lineDeveloperPermission;
-        if (isEmpty) { restoreData(s.data); setPill("saved"); toast(`「${name}」を読み込みました`, "ok"); }
-      }
+      if (!s || !s.data) return;
+      // 現在のフォームが（店舗名以外）ほぼ空のときだけ自動復元
+      const cur = collectData();
+      const isEmpty = !cur.accountName && !cur.password && cur.categories.length === 0 && !cur.lineDeveloperPermission;
+      if (isEmpty) { lastRestored = name; restoreData(s.data); setPill("saved"); toast(`「${name}」を読み込みました`, "ok"); }
     });
 
     renderSavedList();
