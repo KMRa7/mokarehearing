@@ -677,7 +677,7 @@
           if (idx > -1) label = esc(n.slice(0, idx)) + "<mark>" + esc(n.slice(idx, idx + ql.length)) + "</mark>" + esc(n.slice(idx + ql.length));
         }
         return `<div class="ac-item" data-name="${esc(n)}" data-i="${i}">
-          <span class="ac-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 7h14a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z"/><path d="M3 7l2-3h6l2 3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          <span class="ac-ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 7h14a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z"/><path d="M3 7l2-3h6l2 3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
           <span class="ac-txt"><span class="ac-name">${label}</span><span class="ac-meta">最終保存 ${fmtDate(s.savedAt)} ・ カテゴリー ${cats}件</span></span>
           <span class="ac-load">読み込む →</span>
         </div>`;
