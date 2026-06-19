@@ -598,20 +598,124 @@
     });
   }
 
-  /* ---------- New sheet ---------- */
+  /* ---------- Reset / New sheet ---------- */
+  function styleConfirmOnce(label, color) {
+    $("#confirmOk").textContent = label;
+    $("#confirmOk").style.background = color;
+    setTimeout(() => {
+      const restore = () => { $("#confirmOk").textContent = "削除する"; $("#confirmOk").style.background = "var(--danger)"; };
+      $("#confirmCancel").addEventListener("click", restore, { once: true });
+      $("#confirmOk").addEventListener("click", restore, { once: true });
+    }, 0);
+  }
+
   function wireNew() {
     $("#newSheetBtn").addEventListener("click", () => {
       confirmDialog("新規シートを作成", "現在の入力内容をクリアして新しいシートを始めます。保存済みデータは残ります。", () => {
         clearForm(); goToStep(1); toast("新規シートを開始しました", "ok");
       });
-      $("#confirmOk").textContent = "新規作成";
-      $("#confirmOk").style.background = "var(--accent)";
-      // reset button after close
-      setTimeout(() => {
-        const restore = () => { $("#confirmOk").textContent = "削除する"; $("#confirmOk").style.background = "var(--danger)"; };
-        $("#confirmCancel").addEventListener("click", restore, { once: true });
-        $("#confirmOk").addEventListener("click", restore, { once: true });
-      }, 0);
+      styleConfirmOnce("新規作成", "var(--accent)");
+    });
+
+    $("#resetBtn").addEventListener("click", () => {
+      const name = val("projectName").trim();
+      const msg = name
+        ? `「${name}」の現在の入力内容をすべてクリアします。（保存済みデータも削除されます）`
+        : "現在の入力内容をすべてクリアします。";
+      confirmDialog("入力内容をリセット", msg, () => {
+        if (name) { const sheets = allSheets(); delete sheets[name]; writeSheets(sheets); renderSavedList(); }
+        clearForm(); goToStep(1); toast("入力内容をリセットしました", "ok");
+      });
+    });
+  }
+
+  /* ---------- Restore on advancing from Step 1 ---------- */
+  function maybeRestoreOnAdvance() {
+    const name = val("projectName").trim();
+    if (!name) return false;
+    const s = allSheets()[name];
+    if (!s || !s.data) return false;
+    const cur = collectData();
+    const isEmpty = !cur.accountName && !cur.password && cur.categories.length === 0 && !cur.lineDeveloperPermission;
+    if (!isEmpty) return false; // 既に入力がある → 何も挟まず普通に次へ
+    // フォームが空 → 保存データを読み込んで Step 2 へ
+    restoreData(s.data); setPill("saved"); $("#acMenu").classList.remove("open");
+    goToStep(2); toast(`「${name}」の保存データを読み込みました`, "ok");
+    return true;
+  }
+
+  /* ---------- Autocomplete (store name) ---------- */
+  function wireAutocomplete() {
+    const input = $("#projectName");
+    const menu = $("#acMenu");
+    let activeIdx = -1;
+    let matches = [];
+
+    const close = () => { menu.classList.remove("open"); menu.innerHTML = ""; activeIdx = -1; };
+
+    function formActiveOrEmpty() {
+      const cur = collectData();
+      return !cur.accountName && !cur.password && cur.categories.length === 0 && !cur.lineDeveloperPermission;
+    }
+
+    function render(q) {
+      const sheets = allSheets();
+      const names = Object.keys(sheets).sort((a, b) =>
+        new Date(sheets[b].savedAt) - new Date(sheets[a].savedAt));
+      const ql = q.trim().toLowerCase();
+      matches = names.filter((n) => !ql || n.toLowerCase().includes(ql))
+        .filter((n) => n.toLowerCase() !== ql) // 完全一致は隠す（既に開いている）
+        .slice(0, 6);
+      if (!matches.length) { close(); return; }
+      activeIdx = -1;
+      menu.innerHTML = `<div class="ac-head">保存済みの店舗名</div>` + matches.map((n, i) => {
+        const s = sheets[n];
+        const cats = (s.data.categories || []).length;
+        let label = esc(n);
+        if (ql) {
+          const idx = n.toLowerCase().indexOf(ql);
+          if (idx > -1) label = esc(n.slice(0, idx)) + "<mark>" + esc(n.slice(idx, idx + ql.length)) + "</mark>" + esc(n.slice(idx + ql.length));
+        }
+        return `<div class="ac-item" data-name="${esc(n)}" data-i="${i}">
+          <span class="ac-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M5 7h14a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z"/><path d="M3 7l2-3h6l2 3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          <span class="ac-txt"><span class="ac-name">${label}</span><span class="ac-meta">最終保存 ${fmtDate(s.savedAt)} ・ カテゴリー ${cats}件</span></span>
+          <span class="ac-load">読み込む →</span>
+        </div>`;
+      }).join("");
+      menu.classList.add("open");
+    }
+
+    function choose(name) {
+      const s = allSheets()[name];
+      close();
+      if (!s || !s.data) return;
+      const apply = () => { restoreData(s.data); setPill("saved"); goToStep(1); toast(`「${name}」を読み込みました`, "ok"); };
+      if (formActiveOrEmpty()) { apply(); }
+      else {
+        confirmDialog("保存済みデータを読み込み", `現在の入力内容を破棄して「${name}」を読み込みますか？`, apply);
+        styleConfirmOnce("読み込む", "var(--accent)");
+      }
+    }
+
+    input.addEventListener("input", () => render(input.value));
+    input.addEventListener("focus", () => { if (input.value.trim() === "") render(""); else render(input.value); });
+    input.addEventListener("keydown", (e) => {
+      if (!menu.classList.contains("open")) return;
+      const items = $$(".ac-item", menu);
+      if (e.key === "ArrowDown") { e.preventDefault(); activeIdx = Math.min(activeIdx + 1, items.length - 1); }
+      else if (e.key === "ArrowUp") { e.preventDefault(); activeIdx = Math.max(activeIdx - 1, 0); }
+      else if (e.key === "Enter") {
+        if (activeIdx > -1) { e.preventDefault(); choose(matches[activeIdx]); return; }
+      } else if (e.key === "Escape") { close(); return; }
+      else return;
+      items.forEach((it, i) => it.classList.toggle("active", i === activeIdx));
+    });
+    menu.addEventListener("mousedown", (e) => {
+      const it = e.target.closest(".ac-item");
+      if (it) { e.preventDefault(); choose(it.dataset.name); }
+    });
+    document.addEventListener("click", (e) => {
+      if (!e.target.closest(".ac-wrap")) close();
     });
   }
 
@@ -909,25 +1013,19 @@ document.addEventListener("click",function(e){var b=e.target.closest(".cp");if(b
 
     // nav buttons
     $("#prevBtn").addEventListener("click", () => goToStep(currentStep - 1));
-    $("#nextBtn").addEventListener("click", () => { if (validateStep(currentStep)) goToStep(currentStep + 1); });
+    $("#nextBtn").addEventListener("click", () => {
+      if (!validateStep(currentStep)) return;
+      if (currentStep === 1 && maybeRestoreOnAdvance()) return;
+      goToStep(currentStep + 1);
+    });
 
     // autosave
     const form = $("#hearingForm");
     form.addEventListener("input", scheduleSave);
     form.addEventListener("change", scheduleSave);
 
-    // project name → auto-load existing
-    $("#projectName").addEventListener("change", () => {
-      const name = val("projectName").trim();
-      if (!name) return;
-      const s = allSheets()[name];
-      if (s && s.data && (s.data.categories || []).length >= 0) {
-        // only auto-load if current form is essentially empty besides the name
-        const cur = collectData();
-        const isEmpty = !cur.accountName && !cur.password && cur.categories.length === 0 && !cur.lineDeveloperPermission;
-        if (isEmpty) { restoreData(s.data); setPill("saved"); toast(`「${name}」を読み込みました`, "ok"); }
-      }
-    });
+    // project name → 入力中に保存済み店舗名を候補表示（選択で即復元）
+    wireAutocomplete();
 
     renderSavedList();
 
