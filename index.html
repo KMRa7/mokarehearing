@@ -9,6 +9,41 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+JP:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css?v=3">
+  <style>
+    /* autocomplete (store name) — inlined to be cache-proof */
+    .ac-wrap { position: relative; }
+    .ac-menu {
+      position: absolute; top: calc(100% + 6px); left: 0; right: 0; z-index: 20;
+      background: #fff; border: 1.5px solid oklch(0.880 0.008 220);
+      border-radius: 8px; box-shadow: 0 6px 20px rgba(16,24,32,.10), 0 2px 6px rgba(16,24,32,.05);
+      padding: 6px; display: none; max-height: 300px; overflow-y: auto;
+    }
+    .ac-menu.open { display: block; }
+    .ac-head {
+      font-size: 11px; font-weight: 600; letter-spacing: .04em;
+      color: oklch(0.640 0.011 222); padding: 7px 10px 9px;
+    }
+    .ac-item {
+      display: flex; align-items: center; gap: 11px;
+      padding: 9px 10px; border-radius: 8px; cursor: pointer;
+      transition: background .12s; background: #fff;
+    }
+    .ac-item + .ac-item { margin-top: 2px; }
+    .ac-item:hover, .ac-item.active { background: oklch(0.967 0.020 192); }
+    .ac-item .ac-ic {
+      width: 32px; height: 32px; border-radius: 8px; flex-shrink: 0;
+      background: oklch(0.965 0.006 196); color: oklch(0.500 0.014 222);
+      display: grid; place-items: center;
+    }
+    .ac-item.active .ac-ic, .ac-item:hover .ac-ic { background: #fff; color: oklch(0.470 0.075 192); }
+    .ac-item .ac-ic svg { width: 16px; height: 16px; }
+    .ac-item .ac-txt { flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.4; }
+    .ac-item .ac-name { font-size: 14px; font-weight: 600; color: oklch(0.285 0.018 222); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .ac-item .ac-name mark { background: oklch(0.560 0.072 192 / 0.22); color: inherit; border-radius: 3px; padding: 0 1px; }
+    .ac-item .ac-meta { font-size: 11.5px; color: oklch(0.640 0.011 222); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .ac-item .ac-load { font-size: 11.5px; font-weight: 600; color: oklch(0.470 0.075 192); flex-shrink: 0; opacity: 0; transition: .12s; }
+    .ac-item:hover .ac-load, .ac-item.active .ac-load { opacity: 1; }
+  </style>
 </head>
 
 <body>
@@ -296,7 +331,9 @@ LINE名: {LINE名}
               <label class="label" for="reminderMessage">リマインドメッセージ</label>
               <textarea class="textarea code" id="reminderMessage" name="reminderMessage">{LINE名}様
 
-まもなく予約時間です。
+明日はご予約日となっております。
+ご来店を楽しみにお待ちしております☺️
+                
 予約日時: {予約日時}
 メニュー: {メニュー名}</textarea>
             </div>
